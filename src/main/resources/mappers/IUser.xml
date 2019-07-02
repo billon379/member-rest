@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 用户 -->
+<mapper namespace="fun.billon.member.dao.IUserDAO">
+
+    <!-- 新增用户 -->
+    <insert id="insertUser" parameterType="fun.billon.member.api.model.UserModel" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO user (`account`, `password`, salt, phone, nickname, sex, head_img_url)
+        VALUES (#{account}, #{password}, #{salt}, #{phone}, #{nickname}, #{sex}, #{headImgUrl})
+    </insert>
+
+    <!-- 更新用户信息 -->
+    <update id="updateUserByPK" parameterType="fun.billon.member.api.model.UserModel">
+        UPDATE user
+        <set>
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+            <if test="password != null">
+                `password` = #{password},
+            </if>
+            <if test="sex > 0">
+                sex = #{sex},
+            </if>
+            <if test="headImgUrl != null">
+                head_img_url = #{headImgUrl},
+            </if>
+            update_time = NOW()
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 根据条件获取记录数 -->
+    <select id="queryPKListCountByCriteria" parameterType="fun.billon.member.api.model.UserModel" resultType="Integer">
+        SELECT COUNT(*) FROM user
+        <where>
+            <if test="keywords != null">
+                (`account` LIKE CONCAT('%',#{keywords},'%')
+                OR nickname LIKE CONCAT('%',#{keywords},'%'))
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据条件获取主键 -->
+    <select id="queryPKListByCriteria" parameterType="fun.billon.member.api.model.UserModel" resultType="Integer">
+        SELECT id FROM user
+        <where>
+            <if test="keywords != null">
+                (`account` LIKE CONCAT('%',#{keywords},'%')
+                OR nickname LIKE CONCAT('%',#{keywords},'%'))
+            </if>
+        </where>
+        ORDER BY id DESC
+        LIMIT ${(pageIndex-1)*pageSize},${pageSize}
+    </select>
+
+    <!-- 根据条件获取主键 -->
+    <select id="queryPKByCriteria" parameterType="fun.billon.member.api.model.UserModel" resultType="Integer">
+        SELECT id FROM user
+        <where>
+            <choose>
+                <when test="account != null">
+                    `account` = #{account}
+                </when>
+                <otherwise>
+                    1 != 1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!-- 根据主键查询用户 -->
+    <select id="queryUserByPK" parameterType="fun.billon.member.api.model.UserModel"
+            resultMap="resultUser">
+        SELECT
+        <include refid="userMapping"/>
+        FROM user
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 查询字段映射 begin-->
+    <!-- 用户信息查询字段映射(user) -->
+    <sql id="userMapping">
+        id, `account`, `password`, salt, phone, nickname, sex, head_img_url,
+        cash, points, update_time, create_time
+    </sql>
+    <!-- 查询字段映射 end-->
+
+    <!-- 查询结果映射begin -->
+    <!-- 用户信息映射 -->
+    <resultMap id="resultUser" type="fun.billon.member.api.model.UserModel">
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="phone" column="phone"/>
+        <result property="nickname" column="nickname"/>
+        <result property="sex" column="sex"/>
+        <result property="headImgUrl" column="head_img_url"/>
+        <result property="cash" column="cash"/>
+        <result property="points" column="points"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <!-- 查询结果映射end -->
+
+</mapper>

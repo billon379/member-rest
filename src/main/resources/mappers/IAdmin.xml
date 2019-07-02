@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 系统管理员 -->
+<mapper namespace="fun.billon.member.dao.IAdminDAO">
+
+    <!-- 根据条件获取主键 -->
+    <select id="queryPKByCriteria" parameterType="fun.billon.member.api.model.AdminModel"
+            resultType="Integer">
+        SELECT id FROM admin
+        <where>
+            <choose>
+                <when test="account != null">
+                    `account` = #{account}
+                </when>
+                <otherwise>
+                    1 != 1
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!-- 根据主键查询管理员 -->
+    <select id="queryAdminByPK" parameterType="fun.billon.member.api.model.AdminModel"
+            resultMap="resultAdmin">
+        SELECT
+        <include refid="adminMapping"/>
+        FROM admin
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 查询字段映射 begin-->
+    <!-- 管理员信息查询字段映射(admin) -->
+    <sql id="adminMapping">
+        id, `account`, `password`, salt, nickname, create_time
+    </sql>
+    <!-- 查询字段映射 end-->
+
+    <!-- 查询结果映射begin -->
+    <!-- 管理员信息映射 -->
+    <resultMap id="resultAdmin" type="fun.billon.member.api.model.AdminModel">
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="salt" column="salt"/>
+        <result property="nickname" column="nickname"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <!-- 查询结果映射end -->
+
+</mapper>
